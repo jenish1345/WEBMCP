@@ -1,0 +1,73 @@
+describe('p-as-heading-matches', () => {
+  let rule;
+  const fixture = document.getElementById('fixture');
+
+  beforeEach(() => {
+    rule = axe.utils.getRule('p-as-heading');
+  });
+
+  afterEach(() => {
+    fixture.innerHTML = '';
+  });
+
+  it('is a function', () => {
+    assert.isFunction(rule.matches);
+  });
+
+  it('matches p elements', () => {
+    fixture.innerHTML = '<p id="target">some text</p><p>some other text</p>';
+    const target = fixture.querySelector('#target');
+
+    assert.isTrue(rule.matches(target));
+  });
+
+  it('ignores the last p element in a list of children', () => {
+    fixture.innerHTML = '<p>some text</p><p id="target">some other text</p>';
+    const target = fixture.querySelector('#target');
+
+    assert.isFalse(rule.matches(target));
+  });
+
+  it('ignores p elements that contains punctuation marks', () => {
+    fixture.innerHTML =
+      '<p id="target">A text. Paragraph?</p><p>some other text</p>';
+    const target = fixture.querySelector('#target');
+
+    assert.isFalse(rule.matches(target));
+  });
+
+  it('matches p elements with a single punctuation mark', () => {
+    fixture.innerHTML = '<p id="target">A paragraph?</p><p>some other text</p>';
+    const target = fixture.querySelector('#target');
+
+    assert.isTrue(rule.matches(target));
+  });
+
+  it('ignores p elements that have no text-like characters', () => {
+    fixture.innerHTML = '<p id="target"> \n\t\r </p><p>some other text</p>';
+    const target = fixture.querySelector('#target');
+
+    assert.isFalse(rule.matches(target));
+  });
+
+  it('ignores siblings that are not p elements', () => {
+    fixture.innerHTML =
+      '<p id="target">some text</p><div></div><p>some other text</p>';
+    let target = fixture.querySelector('#target');
+
+    assert.isTrue(rule.matches(target));
+
+    fixture.innerHTML = '<p id="target">some text</p><div></div>';
+    target = fixture.querySelector('#target');
+
+    assert.isFalse(rule.matches(target));
+  });
+
+  it('ignores empty p elements as siblings', () => {
+    fixture.innerHTML =
+      '<p id="target">some text</p><p> <!-- nothing here --><img src="" alt="" /></p>';
+    const target = fixture.querySelector('#target');
+
+    assert.isFalse(rule.matches(target));
+  });
+});

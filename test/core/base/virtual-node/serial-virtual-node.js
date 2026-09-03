@@ -1,0 +1,354 @@
+describe('SerialVirtualNode', () => {
+  const SerialVirtualNode = axe.SerialVirtualNode;
+
+  it('should stringify uniquely against a DOM-backed VirtualNode', () => {
+    const fixture = document.querySelector('#fixture') || document.body;
+    const domNode = new axe.VirtualNode(fixture);
+    const serialNode = new axe.SerialVirtualNode({ nodeName: 'div' });
+
+    assert.notEqual(String(domNode), String(serialNode));
+  });
+
+  it('extends AbstractVirtualNode', () => {
+    const vNode = new SerialVirtualNode({
+      nodeName: 'div'
+    });
+    assert.instanceOf(vNode, axe.AbstractVirtualNode);
+  });
+
+  describe('props', () => {
+    it('assigns any properties to .props', () => {
+      const props = {
+        nodeType: 1,
+        nodeName: 'div',
+        someType: 'bar',
+        somethingElse: 'baz'
+      };
+      const vNode = new SerialVirtualNode(props);
+      assert.deepEqual(vNode.props, props);
+    });
+
+    it('returns a frozen object', () => {
+      const vNode = new SerialVirtualNode({ nodeName: 'div' });
+      assert.isTrue(Object.isFrozen(vNode.props), 'Expect object to be frozen');
+    });
+
+    it('takes 1 as its nodeType', () => {
+      const vNode = new SerialVirtualNode({
+        nodeType: 1,
+        nodeName: 'div'
+      });
+      assert.equal(vNode.props.nodeType, 1);
+    });
+
+    it('takes 3 as its nodeType', () => {
+      const vNode = new SerialVirtualNode({
+        nodeType: 3,
+        nodeName: '#text'
+      });
+      assert.equal(vNode.props.nodeType, 3);
+    });
+
+    it('has a default nodeType of 1', () => {
+      const vNode = new SerialVirtualNode({ nodeName: 'div' });
+      assert.equal(vNode.props.nodeType, 1);
+    });
+
+    it('does not throw if nodeType is falsy', () => {
+      [null, undefined].forEach(nonThrowingNodeType => {
+        assert.doesNotThrow(() => {
+          // eslint-disable-next-line no-new
+          new SerialVirtualNode({
+            nodeType: nonThrowingNodeType,
+            nodeName: 'div'
+          });
+        });
+      });
+    });
+
+    it('throws if nodeType is a not a number', () => {
+      [true, 'one', '1', { foo: 'bar' }].forEach(throwingNodeType => {
+        assert.throws(() => {
+          // eslint-disable-next-line no-new
+          new SerialVirtualNode({
+            nodeType: throwingNodeType,
+            nodeName: 'div'
+          });
+        });
+      });
+    });
+
+    it('converts nodeNames to lower case', () => {
+      const htmlNodes = [
+        'DIV',
+        'SPAN',
+        'INPUT',
+        'HeAdEr',
+        'TABLE',
+        'TITLE',
+        'BUTTON',
+        'Foo'
+      ];
+      htmlNodes.forEach(nodeName => {
+        const vNode = new SerialVirtualNode({ nodeName: nodeName });
+        assert.equal(vNode.props.nodeName, nodeName.toLowerCase());
+      });
+    });
+
+    it('defaults to the correct nodeType for certain nodeNames', () => {
+      const vNode1 = new SerialVirtualNode({ nodeName: 'DIV' });
+      assert.equal(vNode1.props.nodeType, 1);
+      const vNode2 = new SerialVirtualNode({ nodeName: '#cdata-section' });
+      assert.equal(vNode2.props.nodeType, 2);
+      const vNode3 = new SerialVirtualNode({ nodeName: '#text' });
+      assert.equal(vNode3.props.nodeType, 3);
+      const vNode8 = new SerialVirtualNode({ nodeName: '#comment' });
+      assert.equal(vNode8.props.nodeType, 8);
+      const vNode9 = new SerialVirtualNode({ nodeName: '#document' });
+      assert.equal(vNode9.props.nodeType, 9);
+      const vNode11 = new SerialVirtualNode({ nodeName: '#document-fragment' });
+      assert.equal(vNode11.props.nodeType, 11);
+    });
+
+    it('defaults to the correct nodeName for certain nodeTypes', () => {
+      const vNode2 = new SerialVirtualNode({ nodeType: 2 });
+      assert.equal(vNode2.props.nodeName, '#cdata-section');
+      const vNode3 = new SerialVirtualNode({ nodeType: 3 });
+      assert.equal(vNode3.props.nodeName, '#text');
+      const vNode8 = new SerialVirtualNode({ nodeType: 8 });
+      assert.equal(vNode8.props.nodeName, '#comment');
+      const vNode9 = new SerialVirtualNode({ nodeType: 9 });
+      assert.equal(vNode9.props.nodeName, '#document');
+      const vNode11 = new SerialVirtualNode({ nodeType: 11 });
+      assert.equal(vNode11.props.nodeName, '#document-fragment');
+    });
+
+    it('throws if nodeName is not a string', () => {
+      [123, true, null, {}, undefined, []].forEach(notAString => {
+        assert.throws(() => {
+          // eslint-disable-next-line no-new
+          new SerialVirtualNode({ nodeName: notAString });
+        });
+      });
+    });
+
+    it('ignores the `attributes` property', () => {
+      const vNode = new SerialVirtualNode({
+        nodeName: 'div',
+        attributes: {
+          foo: 'foo',
+          bar: 'bar',
+          baz: 'baz'
+        }
+      });
+      assert.isUndefined(vNode.props.attributes);
+    });
+
+    it('converts type prop to lower case', () => {
+      const types = ['text', 'COLOR', 'Month', 'uRL'];
+      types.forEach(type => {
+        const vNode = new SerialVirtualNode({
+          nodeName: 'input',
+          type: type
+        });
+        assert.equal(vNode.props.type, type.toLowerCase());
+      });
+    });
+
+    it('converts type attribute to lower case', () => {
+      const types = ['text', 'COLOR', 'Month', 'uRL'];
+      types.forEach(type => {
+        const vNode = new SerialVirtualNode({
+          nodeName: 'input',
+          attributes: {
+            type: type
+          }
+        });
+        assert.equal(vNode.props.type, type.toLowerCase());
+      });
+    });
+
+    it('defaults type prop to "text"', () => {
+      const vNode = new SerialVirtualNode({
+        nodeName: 'input'
+      });
+      assert.equal(vNode.props.type, 'text');
+    });
+
+    it('default type prop to "text" if type is invalid', () => {
+      const vNode = new SerialVirtualNode({
+        nodeName: 'input',
+        attributes: {
+          type: 'woohoo'
+        }
+      });
+      assert.equal(vNode.props.type, 'text');
+    });
+
+    it('uses the type property over the type attribute', () => {
+      const vNode = new SerialVirtualNode({
+        nodeName: 'input',
+        type: 'month',
+        attributes: {
+          type: 'color'
+        }
+      });
+      assert.equal(vNode.props.type, 'month');
+    });
+
+    it('reflects checkbox properties', () => {
+      const vNode = new SerialVirtualNode({
+        nodeName: 'input',
+        type: 'checkbox',
+        checked: true,
+        indeterminate: true
+      });
+      assert.equal(vNode.props.checked, true);
+      assert.equal(vNode.props.indeterminate, true);
+    });
+  });
+
+  describe('attr', () => {
+    it('returns a string value for the attribute', () => {
+      const vNode = new SerialVirtualNode({
+        nodeName: 'div',
+        attributes: {
+          foo: 'foo',
+          bar: 123,
+          baz: true,
+          qux: ''
+        }
+      });
+      assert.equal(vNode.attr('foo'), 'foo');
+      assert.equal(vNode.attr('bar'), '123');
+      assert.equal(vNode.attr('baz'), 'true');
+      assert.equal(vNode.attr('qux'), '');
+    });
+
+    it('returns null if the attribute is null', () => {
+      const vNode = new SerialVirtualNode({
+        nodeName: 'div',
+        attributes: { foo: null }
+      });
+      assert.isNull(vNode.attr('foo'));
+    });
+
+    it('returns null if the attribute is not set', () => {
+      const vNode = new SerialVirtualNode({
+        nodeName: 'div'
+      });
+      assert.isNull(vNode.attr('foo'));
+    });
+
+    it('throws if the value is an object (for except null)', () => {
+      [{}, [], /foo/].forEach(someObject => {
+        assert.throws(() => {
+          // eslint-disable-next-line no-new
+          new SerialVirtualNode({
+            nodeName: 'div',
+            attributes: { foo: someObject }
+          });
+        });
+      });
+    });
+
+    it('converts `className` to `class`', () => {
+      const vNode = new SerialVirtualNode({
+        nodeName: 'div',
+        attributes: {
+          className: 'foo bar baz'
+        }
+      });
+      assert.equal(vNode.attr('class'), 'foo bar baz');
+    });
+
+    it('converts `htmlFor` to `for`', () => {
+      const vNode = new SerialVirtualNode({
+        nodeName: 'div',
+        attributes: {
+          htmlFor: 'foo'
+        }
+      });
+      assert.equal(vNode.attr('for'), 'foo');
+    });
+  });
+
+  describe('hasAttr', () => {
+    it('returns true if the attribute has a value', () => {
+      const vNode = new SerialVirtualNode({
+        nodeName: 'div',
+        attributes: {
+          foo: '',
+          bar: 0,
+          baz: false
+        }
+      });
+      assert.isTrue(vNode.hasAttr('foo'));
+      assert.isTrue(vNode.hasAttr('bar'));
+      assert.isTrue(vNode.hasAttr('baz'));
+    });
+
+    it('returns true if the attribute is null', () => {
+      const vNode = new SerialVirtualNode({
+        nodeName: 'div',
+        attributes: { foo: null }
+      });
+      assert.isTrue(vNode.hasAttr('foo'));
+    });
+
+    it('returns false if the attribute is undefined', () => {
+      const vNode = new SerialVirtualNode({
+        nodeName: 'div',
+        attributes: { foo: undefined }
+      });
+      assert.isFalse(vNode.hasAttr('foo'));
+      assert.isFalse(vNode.hasAttr('bar'));
+    });
+
+    it('converts `htmlFor` to `for`', () => {
+      const nodeWithoutFor = new SerialVirtualNode({
+        nodeName: 'div',
+        attributes: {}
+      });
+      const nodeWithFor = new SerialVirtualNode({
+        nodeName: 'div',
+        attributes: { htmlFor: 'foo' }
+      });
+
+      assert.isFalse(nodeWithoutFor.hasAttr('for'));
+      assert.isTrue(nodeWithFor.hasAttr('for'));
+    });
+
+    it('converts `className` to `class`', () => {
+      const nodeWithoutClass = new SerialVirtualNode({
+        nodeName: 'div',
+        attributes: {}
+      });
+      const nodeWithClass = new SerialVirtualNode({
+        nodeName: 'div',
+        attributes: { className: 'foo bar baz' }
+      });
+
+      assert.isFalse(nodeWithoutClass.hasAttr('class'));
+      assert.isTrue(nodeWithClass.hasAttr('class'));
+    });
+  });
+
+  describe('attrNames', () => {
+    it('should return a list of attribute names', () => {
+      const vNode = new SerialVirtualNode({
+        nodeName: 'div',
+        attributes: { foo: 'bar' }
+      });
+
+      assert.deepEqual(vNode.attrNames, ['foo']);
+    });
+
+    it('should return an empty array if there are no attributes', () => {
+      const vNode = new SerialVirtualNode({
+        nodeName: 'div'
+      });
+      assert.deepEqual(vNode.attrNames, []);
+    });
+  });
+});

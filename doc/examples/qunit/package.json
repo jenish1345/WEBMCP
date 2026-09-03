@@ -1,0 +1,19 @@
+{
+  "name": "axe-qunit-example",
+  "description": "Axe QUnit Example",
+  "version": "0.0.1",
+  "private": true,
+  "author": {
+    "name": "David Sturley",
+    "organization": "Deque Systems, Inc.",
+    "url": "http://deque.com/"
+  },
+  "scripts": {
+    "test": "node-qunit-puppeteer test/test.html"
+  },
+  "devDependencies": {
+    "axe-core": "^4.6.2",
+    "node-qunit-puppeteer": "^2.2.1",
+    "qunit": "^2.22.0"
+  }
+}

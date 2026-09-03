@@ -1,0 +1,28 @@
+{
+  "id": "role-img-alt",
+  "impact": "serious",
+  "selector": ":is([role='img'], [role='image']):not(img, area, input, object)",
+  "matches": "html-namespace-matches",
+  "tags": [
+    "cat.text-alternatives",
+    "wcag2a",
+    "wcag111",
+    "section508",
+    "section508.22.a",
+    "TTv5",
+    "TT7.a",
+    "EN-301-549",
+    "EN-9.1.1.1",
+    "ACT",
+    "RGAAv4",
+    "RGAA-1.1.1"
+  ],
+  "actIds": ["23a2a8"],
+  "metadata": {
+    "description": "Ensure [role=\"img\"] and [role=\"image\"] elements have alternative text",
+    "help": "[role=\"img\"] and [role=\"image\"] elements must have alternative text"
+  },
+  "all": [],
+  "any": ["aria-label", "aria-labelledby", "non-empty-title"],
+  "none": []
+}

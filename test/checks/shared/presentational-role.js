@@ -1,0 +1,99 @@
+describe('presentational-role', () => {
+  const fixture = document.getElementById('fixture');
+  const queryFixture = axe.testUtils.queryFixture;
+  const checkEvaluate = axe.testUtils.getCheckEvaluate('presentational-role');
+  const checkContext = axe.testUtils.MockCheckContext();
+
+  afterEach(() => {
+    fixture.innerHTML = '';
+    checkContext.reset();
+  });
+
+  it('should detect role="none" on the element', () => {
+    const vNode = queryFixture('<div id="target" role="none"></div>');
+
+    assert.isTrue(checkEvaluate.call(checkContext, null, null, vNode));
+    assert.deepEqual(checkContext._data.role, 'none');
+  });
+
+  it('should detect role="presentation" on the element', () => {
+    const vNode = queryFixture('<div id="target" role="presentation"></div>');
+
+    assert.isTrue(checkEvaluate.call(checkContext, null, null, vNode));
+    assert.deepEqual(checkContext._data.role, 'presentation');
+  });
+
+  it('should return false when role !== none', () => {
+    const vNode = queryFixture('<div id="target" role="cats"></div>');
+
+    assert.isFalse(checkEvaluate.call(checkContext, null, null, vNode));
+  });
+
+  it('should return false when there is no role attribute', () => {
+    const vNode = queryFixture('<div id="target"></div>');
+
+    assert.isFalse(checkEvaluate.call(checkContext, null, null, vNode));
+  });
+
+  it('should return false when the element is focusable', () => {
+    const vNode = queryFixture(
+      '<button id="target" role="none">Still a button</button>'
+    );
+
+    assert.isFalse(checkEvaluate.call(checkContext, null, null, vNode));
+    assert.deepEqual(checkContext._data.messageKey, 'focusable');
+  });
+
+  it('should return false when the element has global aria attributes', () => {
+    const vNode = queryFixture(
+      '<img id="target" role="none" aria-live="assertive" />'
+    );
+
+    assert.isFalse(checkEvaluate.call(checkContext, null, null, vNode));
+    assert.deepEqual(checkContext._data.messageKey, 'globalAria');
+  });
+
+  it('should return false when the element has global aria attributes and is focusable', () => {
+    const vNode = queryFixture(
+      '<button id="target" role="none" aria-live="assertive">Still a button</button>'
+    );
+
+    assert.isFalse(checkEvaluate.call(checkContext, null, null, vNode));
+    assert.deepEqual(checkContext._data.messageKey, 'both');
+  });
+
+  it('does not trigger conflict resolution for a global aria attribute set via element internals', () => {
+    // internals do not participate in role conflict resolution; no browser
+    // supports it yet (see issue #5162), so the presentational role sticks
+    const vNode = queryFixture(
+      '<testutils-element id="target" no-role role="none" with-aria-live="assertive">x</testutils-element>'
+    );
+
+    assert.isTrue(checkEvaluate.call(checkContext, null, null, vNode));
+    assert.deepEqual(checkContext._data.role, 'none');
+  });
+
+  it('should return false for iframe element with role=none and title', () => {
+    const vNode = queryFixture(
+      '<iframe id="target" role="none" title="  "></iframe>'
+    );
+
+    assert.isFalse(checkEvaluate.call(checkContext, null, null, vNode));
+    assert.deepEqual(checkContext._data, {
+      messageKey: 'iframe',
+      nodeName: 'iframe'
+    });
+  });
+
+  it('should return false for iframe element with role=presentation and title', () => {
+    const vNode = queryFixture(
+      '<iframe id="target" role="presentation" title=""></iframe>'
+    );
+
+    assert.isFalse(checkEvaluate.call(checkContext, null, null, vNode));
+    assert.deepEqual(checkContext._data, {
+      messageKey: 'iframe',
+      nodeName: 'iframe'
+    });
+  });
+});
