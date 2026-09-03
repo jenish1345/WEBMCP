@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WEBMCP Studio — Dual-Accessibility & Autonomous Agent Co-pilot</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./css/studio.css">
+</head>
+<body>
+
+  <!-- Studio Header -->
+  <header class="studio-header">
+    <div class="brand-wrapper">
+      <div class="brand-icon">⚡</div>
+      <div class="brand-text">
+        <h1>
+          <span>WebMCP Studio</span>
+          <span class="badge-pill">Dual-A11y Engine</span>
+        </h1>
+      </div>
+
+      <div class="target-picker">
+        <label for="targetSelect">Target App:</label>
+        <select id="targetSelect">
+          <option value="./showcase/apex-portal/index.html">Apex HealthCare EHR (Clinical)</option>
+          <option value="./showcase/finflow/index.html">FinFlow Treasury (Financial)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Dual-A11y Scorecard -->
+    <div class="score-trio" id="scorecardContainer">
+      <div class="score-metric">
+        <div class="lbl">Human WCAG</div>
+        <div class="val" id="scoreHuman" style="color: #38bdf8;">100%</div>
+      </div>
+      <div class="score-metric">
+        <div class="lbl">Agent WebMCP</div>
+        <div class="val" id="scoreAgent" style="color: #a855f7;">100%</div>
+      </div>
+      <div class="score-metric">
+        <div class="lbl">Dual Index</div>
+        <div class="val" id="scoreDual" style="color: #10b981;">100%</div>
+      </div>
+    </div>
+
+    <!-- Control Actions -->
+    <div class="header-controls">
+      <button class="btn-action btn-primary" id="btnConnect">
+        <span>⚡</span>
+        <span>Connect & Discover</span>
+      </button>
+
+      <button class="btn-action btn-audit" id="btnRunLoop">
+        <span>▶</span>
+        <span>Run Dual-A11y Loop</span>
+      </button>
+
+      <button class="btn-action btn-ghost" id="btnReset">
+        <span>🔄</span>
+        <span>Reset Demo</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Workspace: Split View -->
+  <div class="studio-workspace">
+    <!-- Left Pane: Target Web Application Viewport -->
+    <section class="target-viewport-pane" aria-label="Target Web Application">
+      <div class="pane-toolbar">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #10b981;"></span>
+          <span id="targetUrlLabel" style="font-family: var(--font-mono); font-size: 0.75rem;">http://localhost/showcase/apex-portal/</span>
+        </div>
+        <div id="targetWebmcpBadge" style="color: #38bdf8; font-family: var(--font-mono); font-size: 0.72rem;">
+          WebMCP: Ready
+        </div>
+      </div>
+
+      <div class="iframe-container">
+        <iframe id="targetFrame" src="./showcase/apex-portal/index.html" title="Target Web Application Viewport"></iframe>
+      </div>
+    </section>
+
+    <!-- Right Pane: Studio Intelligence & Agent Control -->
+    <section class="studio-intel-pane" aria-label="Agent Activity and Tools">
+      <!-- Tabs -->
+      <nav class="intel-tabs" aria-label="Studio Intelligence Tabs">
+        <button class="tab-btn active" data-tab="tab-trace">
+          <span>Activity Trace</span>
+          <span class="tab-count" id="countTrace">0</span>
+        </button>
+        <button class="tab-btn" data-tab="tab-tools">
+          <span>WebMCP Tools</span>
+          <span class="tab-count" id="countTools">0</span>
+        </button>
+        <button class="tab-btn" data-tab="tab-findings">
+          <span>Findings & Evidence</span>
+          <span class="tab-count" id="countFindings">0</span>
+        </button>
+        <button class="tab-btn" data-tab="tab-diffs">
+          <span>Verification & Diffs</span>
+          <span class="tab-count" id="countVerified">0</span>
+        </button>
+      </nav>
+
+      <!-- Tab Content Area -->
+      <div class="intel-content-area">
+        <!-- Tab 1: Activity Trace -->
+        <div class="tab-panel active" id="tab-trace">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary);">
+              Agent Execution Stream
+            </div>
+            <div style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono);">
+              Autonomous Loop: Discover &rarr; Audit &rarr; Checkpoint &rarr; Actuate &rarr; Retest
+            </div>
+          </div>
+
+          <div class="trace-terminal" id="traceTerminal">
+            <div class="trace-line">
+              <span class="trace-time">00:00:00</span>
+              <span class="trace-badge badge-discover">SYSTEM</span>
+              <span class="trace-msg">WebMCP Studio ready. Click "Connect & Discover" or "Run Dual-A11y Loop" to start.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: WebMCP Tools Catalog -->
+        <div class="tab-panel" id="tab-tools">
+          <div style="font-size: 0.85rem; font-weight: 600; margin-bottom: 12px;">
+            Discovered In-Browser WebMCP Tools (<code>document.modelContext</code>)
+          </div>
+          <div class="tool-cards-list" id="toolsList">
+            <p style="color: var(--text-muted); font-size: 0.8rem;">No tools discovered yet. Connect to the target application to inspect its WebMCP capabilities.</p>
+          </div>
+        </div>
+
+        <!-- Tab 3: Findings & Evidence Explorer -->
+        <div class="tab-panel" id="tab-findings">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <div style="font-size: 0.85rem; font-weight: 600;">
+              Traceable Dual-Accessibility Findings
+            </div>
+            <div style="font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono);">
+              EVIDENCE-FIRST LIFECYCLE
+            </div>
+          </div>
+
+          <div id="findingsList">
+            <p style="color: var(--text-muted); font-size: 0.8rem;">No audit findings recorded yet. Run the Dual-A11y Loop to inspect the page.</p>
+          </div>
+        </div>
+
+        <!-- Tab 4: Verification & DOM Diffs -->
+        <div class="tab-panel" id="tab-diffs">
+          <div style="font-size: 0.85rem; font-weight: 600; margin-bottom: 12px;">
+            Continuous Verification & Retest Diffs
+          </div>
+          <div id="diffsList">
+            <p style="color: var(--text-muted); font-size: 0.8rem;">Remediations and closed-loop verification results will appear here after tool actuation.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Human Checkpoint Modal (The "Holy Shit" Moment) -->
+  <div class="checkpoint-modal-overlay" id="checkpointModal" style="display: none;">
+    <div class="checkpoint-card" role="dialog" aria-labelledby="checkpointTitle" aria-modal="true">
+      <div class="checkpoint-header">
+        <div class="checkpoint-badge">⚠️</div>
+        <div>
+          <h2 id="checkpointTitle" style="font-size: 1.05rem; font-weight: 700;">
+            Human Verification Required
+          </h2>
+          <div style="display: flex; gap: 8px; align-items: center; margin-top: 4px;">
+            <span class="confidence-chip" id="checkpointConfidence">Confidence: 72%</span>
+            <span style="font-size: 0.75rem; color: var(--text-secondary);" id="checkpointWcag">WCAG 2.2 AA - 4.1.2</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="font-size: 0.84rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 14px;" id="checkpointRationale">
+        The agent encountered an ambiguous interactive control with destructive clinical side-effects. Automated analysis cannot verify screen-reader safety or intent without human judgment.
+      </div>
+
+      <!-- Evidence Box -->
+      <div class="evidence-box">
+        <div style="color: var(--text-muted); font-size: 0.7rem; margin-bottom: 4px;">DOM CONTEXT & ATTRIBUTES:</div>
+        <div id="checkpointDomSnippet" style="color: #38bdf8; word-break: break-all;">
+          &lt;button id="btnEmergencyOverride" class="btn-emergency" data-action="emergency-override"&gt;&lt;/button&gt;
+        </div>
+      </div>
+
+      <div class="evidence-box" style="margin-top: 8px; border-color: rgba(16, 185, 129, 0.3);">
+        <div style="color: #10b981; font-size: 0.7rem; margin-bottom: 4px;">PROPOSED WEBMCP REMEDIATION:</div>
+        <div id="checkpointRemediationPlan" style="color: #6ee7b7;">
+          Apply aria-label: "Emergency override: Discharge patient records with clinical confirmation" and AAA contrast ratio (8.5:1).
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="checkpoint-actions">
+        <button class="btn-approve" id="btnApproveCheckpoint">
+          ✓ Approve Remediation & Continue
+        </button>
+        <button class="btn-reject" id="btnRejectCheckpoint">
+          ✕ Reject (False Positive)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./js/studio-app.js"></script>
+</body>
+</html>

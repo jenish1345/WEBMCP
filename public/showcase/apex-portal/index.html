@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apex HealthCare — Clinical EHR Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0f172a;
+      --bg-surface: #1e293b;
+      --bg-surface-elevated: #293548;
+      --border-color: #334155;
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --accent-blue: #3b82f6;
+      --accent-teal: #0d9488;
+      --danger-red: #ef4444;
+      --warning-amber: #f59e0b;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.5;
+      padding: 24px;
+      min-height: 100vh;
+    }
+
+    /* Target Web App Header */
+    .app-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 24px;
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #0284c7, #0d9488);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 1.25rem;
+    }
+
+    .brand-title h1 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .brand-title p {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .webmcp-status-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: rgba(13, 148, 136, 0.15);
+      border: 1px solid rgba(13, 148, 136, 0.3);
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #2dd4bf;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: #2dd4bf;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.9); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    /* Patient Overview Banner */
+    .patient-banner {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      margin-bottom: 24px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+
+    .patient-meta-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+
+    .patient-meta-value {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    /* Deliberate contrast flaw on warning badge */
+    .badge-alert {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: var(--radius-md);
+      font-size: 0.8rem;
+      font-weight: 500;
+      /* Intentional Low Contrast: #94a3b8 on white/slate: 2.4:1 ratio */
+      background: #ffffff;
+      color: #94a3b8;
+      border: 1px solid #e2e8f0;
+      transition: all 0.3s ease;
+    }
+
+    /* Grid Layout */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 900px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+    }
+
+    .card-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Vitals List */
+    .vitals-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .vital-box {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      text-align: center;
+    }
+
+    .vital-label {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+
+    .vital-val {
+      font-size: 1.4rem;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Action Toolbar & Intentional A11y / Ambiguity Flaws */
+    .actions-toolbar {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .btn {
+      padding: 10px 16px;
+      border-radius: var(--radius-md);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary {
+      background: var(--accent-blue);
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #2563eb;
+    }
+
+    .btn-secondary {
+      background: var(--bg-surface-elevated);
+      color: var(--text-primary);
+      border-color: var(--border-color);
+    }
+    .btn-secondary:hover {
+      background: #334155;
+    }
+
+    /* Intentional Flaw: Unlabelled high-risk emergency icon button */
+    .btn-emergency {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #f87171;
+      width: 42px;
+      height: 42px;
+      padding: 0;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-emergency:hover {
+      background: rgba(239, 68, 68, 0.3);
+    }
+
+    /* Remediated state classes (applied live by WebMCP tool) */
+    .btn-emergency.remediated {
+      background: #ef4444 !important;
+      color: #ffffff !important;
+      width: auto !important;
+      padding: 10px 16px !important;
+      border-color: #dc2626 !important;
+      box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+    }
+
+    .badge-alert.remediated {
+      background: #dc2626 !important;
+      color: #ffffff !important;
+      border-color: #b91c1c !important;
+      font-weight: 700 !important;
+      box-shadow: 0 0 10px rgba(220, 38, 38, 0.3);
+    }
+
+    /* Live Output Console inside the app */
+    .live-feed {
+      margin-top: 24px;
+      background: #090d16;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      color: #38bdf8;
+      max-height: 140px;
+      overflow-y: auto;
+    }
+
+    .live-feed-header {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Application Header -->
+  <header class="app-header">
+    <div class="brand-section">
+      <div class="brand-logo">A</div>
+      <div class="brand-title">
+        <h1>Apex HealthCare Systems</h1>
+        <p>EHR Intensive Care & Clinical Telemetry Portal</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div class="webmcp-status-pill" id="webmcpStatusPill">
+        <span class="status-dot"></span>
+        <span>WebMCP: document.modelContext ACTIVE</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Patient Overview -->
+  <section class="patient-banner" aria-label="Patient Information">
+    <div>
+      <div class="patient-meta-label">Patient Name</div>
+      <div class="patient-meta-value">Eleanor Vance, 68 F</div>
+    </div>
+    <div>
+      <div class="patient-meta-label">MRN & Ward</div>
+      <div class="patient-meta-value">#849204-ICU-04</div>
+    </div>
+    <div>
+      <div class="patient-meta-label">Admit Diagnosis</div>
+      <div class="patient-meta-value">Acute Cardiac Insufficiency</div>
+    </div>
+    <div>
+      <div class="patient-meta-label">Triage Priority</div>
+      <!-- INTENTIONAL ACCESSIBILITY FLAW 1: Insufficient contrast (2.4:1) -->
+      <div class="badge-alert" id="patientAlertBadge" data-contrast="low">
+        ⚠️ HIGH RISK CLINICAL ALERT
+      </div>
+    </div>
+  </section>
+
+  <!-- Clinical Dashboard Grid -->
+  <main class="dashboard-grid">
+    <!-- Left Column: Patient Telemetry -->
+    <div class="card">
+      <div class="card-title">
+        <span>Continuous Real-Time Telemetry</span>
+        <span style="font-size: 0.75rem; color: var(--text-secondary);">Last synced 2s ago</span>
+      </div>
+
+      <div class="vitals-grid">
+        <div class="vital-box">
+          <div class="vital-label">Heart Rate (ECG)</div>
+          <div class="vital-val" style="color: #4ade80;">72 <span style="font-size: 0.8rem;">BPM</span></div>
+        </div>
+        <div class="vital-box">
+          <div class="vital-label">Blood Pressure</div>
+          <div class="vital-val" style="color: #38bdf8;">118/78</div>
+        </div>
+        <div class="vital-box">
+          <div class="vital-label">Blood Oxygen (SpO2)</div>
+          <div class="vital-val" style="color: #a78bfa;">98%</div>
+        </div>
+      </div>
+
+      <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 12px;">
+        Clinical Actions & Protocol Execution:
+      </div>
+
+      <div class="actions-toolbar">
+        <button class="btn btn-primary" id="btnAdministerMeds">
+          Record Medication
+        </button>
+
+        <button class="btn btn-secondary" id="btnExportLab">
+          Export Lab Orders
+        </button>
+
+        <!-- INTENTIONAL ACCESSIBILITY FLAW 2 & AGENT AMBIGUITY:
+             Unlabelled icon button + destructive override action lacking human verification -->
+        <button
+          class="btn btn-emergency"
+          id="btnEmergencyOverride"
+          data-action="emergency-override"
+          title="Emergency Discharge"
+        >
+          <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Live WebMCP Execution Feed -->
+      <div class="live-feed">
+        <div class="live-feed-header">⚡ In-Browser WebMCP Action Log</div>
+        <div id="targetLogContent">[WebMCP] Initialized. 4 tools registered on document.modelContext.</div>
+      </div>
+    </div>
+
+    <!-- Right Column: Protocol Guidelines & WebMCP Spec Details -->
+    <div class="card">
+      <div class="card-title">
+        <span>Active WebMCP Capabilities</span>
+      </div>
+      <p style="font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 16px;">
+        This web application exposes native WebMCP tools via <code>document.modelContext</code> to enable cooperative agent workflows.
+      </p>
+
+      <ul style="font-size: 0.8rem; color: var(--text-secondary); list-style-position: inside; display: flex; flex-direction: column; gap: 8px;">
+        <li><code>search_patient_records</code> (readOnly: true)</li>
+        <li><code>inspect_component_state</code> (readOnly: true)</li>
+        <li><code>apply_remediation_patch</code> (destructive: false)</li>
+        <li><code>authorize_high_risk_mutation</code> (requiresConfirmation: true)</li>
+      </ul>
+    </div>
+  </main>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
